@@ -62,6 +62,9 @@ class TestBaseModel(unittest.TestCase):
         # Check if we can make a prediction
         test_pred = model.predict_proba(scaler.transform(X))
         self.assertEqual(test_pred.shape, (2, 2))
+        self.assertTrue((test_pred >= 0).all() and (test_pred <= 1).all())
+        total_prob = test_pred.sum(axis=1)
+        np.testing.assert_allclose(total_prob, 1.0)
 
 if __name__ == '__main__':
     unittest.main()
