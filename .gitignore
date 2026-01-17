@@ -1,0 +1,15 @@
+# Data files
+data/*.csv
+data/*.json
+data/leads_raw.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
