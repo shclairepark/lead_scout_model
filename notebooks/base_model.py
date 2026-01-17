@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Load data
 try:
-    df = pd.read_csv('leads_raw.csv')
+    df = pd.read_csv('data/leads_raw.csv')
 except FileNotFoundError:
     print("leads_raw.csv not found. Please run data_generator.py first.")
     exit()
