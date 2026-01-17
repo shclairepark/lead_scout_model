@@ -3,11 +3,17 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
+import os
+
+# Get the path to the data file relative to this script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(script_dir, '..', 'data', 'leads_raw.csv')
+
 # Load data
 try:
-    df = pd.read_csv('data/leads_raw.csv')
+    df = pd.read_csv(data_path)
 except FileNotFoundError:
-    print("leads_raw.csv not found. Please run data_generator.py first.")
+    print(f"Data file not found at {data_path}. Please run data/data_generator.py first.")
     exit()
 
 # Preprocessing: Log transform funding to match inference expectation
