@@ -7,7 +7,7 @@ The model is to determine whether data lead would reply (positive) to the sender
 * **Phase 0:**  The Logistic Regression model (The Baseline model).
 * **Phase 1:** Build your SalesTokenizer.
 Instead of "Lead Score = 80," represent a lead as a coordinate in space.
-* **Phase 2:**  The Logistic Regression model (The Baseline model). Add the "Time" element.
+* **Phase 2:** Add the "Time" element.
 Implement Positional Encoding so the model knows a signal from 2 hours ago is worth more than one from 2 months ago.
 
 ### Block 2: The Logic Deep-Dive
