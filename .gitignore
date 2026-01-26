@@ -2,7 +2,7 @@
 data/*.csv
 data/*.json
 data/leads_raw.csv
-checkpoints/*
+checkpoints/
 
 # Python
 __pycache__/
