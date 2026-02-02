@@ -1,55 +1,59 @@
-# Lead Scout Model 
+# Lead Scout Model
 
-The model is to determine whether data lead would reply (positive) to the sender (sales, saas founder are target users).
+Lead Scout is an intelligent scoring and engagement engine designed to help SaaS founders and sales teams identify high-intent leads that align with their specific business context.
 
-### Block 1: The Signal Foundation
+The system goes beyond generic scoring by analyzing the semantic fit between a sender's profile and a lead's background, combined with a temporal analysis of engagement signals.
 
-* **Phase 0:**  The Logistic Regression model (The Baseline model).
-* **Phase 1:** Build your SalesTokenizer.
-Instead of "Lead Score = 80," represent a lead as a coordinate in space.
-* **Phase 2:** Add the "Time" element.
-Implement Positional Encoding so the model knows a signal from 2 hours ago is worth more than one from 2 months ago.
+## 🚀 Quick Start
 
-### Block 2: The Logic Deep-Dive
-
-* **Phase 3:**  This is the "Aha!" moment.
-Implement Self-Attention.
-* **Phase 4:**  Stack your layers.
-Build a Mini-Transformer for sales.
-
-### Block 3: The Outreach Strategy 
-
-* **Phase 5:**  Control the output.
-Implement a Sampler to adjust "Creativity" (Temperature) so your outreach doesn't sound like a bot.
-* **Phase 6:** : Optimization.
-Implement KV Caching and Mixture of Experts.
-
-### Block 4: Brand Alignment
-
-* **Phase 7:**  Stability.
-Implement LayerNorm so your model doesn't "explode" (outputting gibberish) when training.
-* **Phase 8:**  The "Human Touch."
-Perform Instruction Tuning.
-
-### Block 5: The Stress Test 
-
-* **Phase 9:**  Speed.
-Quantize your model.
-* **Phase 10:**  Final.
-Generate Synthetic Leads designed to trick the model.
-*   **Success Metric:** Your "Credit Waste" (Loss) should drop compared to your Phase 0 baseline.
-
-## Directory Structure
-
+### 1. Installation
+Ensure you have Python 3.9+ and the required dependencies installed:
+```bash
+pip install torch numpy
 ```
-lead-scout-model/
-├── data/           # Raw signals, CSVs, synthetic lead data
-├── notebooks/      # Where you build the basic Logistic Regression (Scorer)
-├── src/            # The "Hard Way" implementation
-│   ├── tokenizer/  # Phase 1: BPE / Vocab files
-│   ├── model/      # Phase 3-10: Transformer Blocks, QKV logic
-│   ├── inference/  # Phase 6: KV Cache & Sampling
-│   └── trainer.py  # Phase 11-12: Training loops & RLHF logic
-├── configs/        # Model hyperparameters (n_layers, n_heads)
-└── README.md       # Your roadmap and "insight" logs
+
+### 2. Generate Test Data
+Populate `data/leads.csv` with a dataset of 100+ public tech profiles and diverse signals:
+```bash
+python data/generate_leads.py
 ```
+
+### 3. Run Ingestion Pipeline
+Process the leads through the full engine to see scoring and automated engagement decisions:
+```bash
+PYTHONPATH=. python data/ingest_csv.py data/leads.csv
+```
+
+## 🔍 Core Functionality
+
+### Data Ingestion & Enrichment
+The model consumes lead data from CSV formats and automatically enriches profiles with industry heuristics and ICP (Ideal Customer Profile) alignment.
+
+### Context-Aware Scoring
+The engine evaluates leads based on:
+- **Semantic Fit**: Measures how well a lead's industry and role align with the sender's specific value proposition.
+- **Intent Analysis**: Weights real-time signals (demo requests, visits, social engagement) using an attention mechanism to prioritize high-value actions.
+- **Recency Decay**: Automatically de-prioritizes older signals to ensure focus remains on active leads.
+
+### Automated Engagement
+Qualified leads (High Intent + High Fit) trigger automated "Conversation Starters"—personalized message drafts based on the specific signals detected.
+
+## 🛠️ Development & Testing
+
+### Running Tests
+The project includes a comprehensive suite of 110+ unit and end-to-end tests.
+```bash
+pytest tests/ -v
+```
+
+### Signal Monitoring Demo
+To simulate or view the signal collection logic in action:
+```bash
+PYTHONPATH=. python tests/run_signals.py --simulate
+```
+
+## 📁 Directory Structure
+- `data/`: CSV datasets and data generation scripts.
+- `src/`: Core engine implementation (Pipeline, Scoring, Context, Enrichment).
+- `tests/`: Unit tests, E2E tests, and signal simulation scripts.
+- `notebooks/`: Research and model prototyping.
