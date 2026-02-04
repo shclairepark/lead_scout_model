@@ -6,7 +6,7 @@ import numpy as np
 
 def dot_product(vec1, vec2):
     """
-    TODO: Calculate dot product between two vectors
+    Calculate dot product between two vectors
     
     Args:
         vec1: numpy array or list, shape (d,)
@@ -23,15 +23,12 @@ def dot_product(vec1, vec2):
     vec1 = np.array(vec1)
     vec2 = np.array(vec2)
     
-    # YOUR CODE HERE
-    # Option 1: Use numpy's dot function
-    # Option 2: Manual calculation with sum and zip
     return np.dot(vec1, vec2)
 
 
 def cosine_similarity(vec1, vec2):
     """
-    TODO: Calculate cosine similarity between two vectors
+    Calculate cosine similarity between two vectors
 
     Args:
         vec1: numpy array or list, shape (d,)
@@ -48,7 +45,6 @@ def cosine_similarity(vec1, vec2):
     vec1 = np.array(vec1)
     vec2 = np.array(vec2)
     
-    # YOUR CODE HERE
     # Formula:
     #     cosine_sim = dot(vec1, vec2) / (||vec1|| * ||vec2||)
     #     where ||vec|| = sqrt(sum(vec^2))
@@ -60,7 +56,7 @@ def cosine_similarity(vec1, vec2):
 
 def euclidean_distance(vec1, vec2):
     """
-    TODO: Calculate Euclidean distance between two vectors
+    Calculate Euclidean distance between two vectors
     
     Args:
         vec1: numpy array or list, shape (d,)
@@ -77,7 +73,6 @@ def euclidean_distance(vec1, vec2):
     vec1 = np.array(vec1)
     vec2 = np.array(vec2)
     
-    # YOUR CODE HERE
     # Formula:
     #     distance = sqrt(sum((vec1 - vec2)^2))
     distance = np.sqrt(np.sum(np.square(vec1 - vec2)))
