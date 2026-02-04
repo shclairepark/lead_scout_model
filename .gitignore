@@ -3,6 +3,8 @@ data/*.csv
 data/*.json
 data/leads_raw.csv
 checkpoints/
+agents/
+docs/
 
 # Python
 __pycache__/
