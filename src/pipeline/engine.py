@@ -20,6 +20,10 @@ from ..engagement import HighIntentFilter, ConversationStarter
 from ..context import SenderProfile, SemanticMatcher, AttentionSignalWeighter
 from .config import SystemConfig
 from .utils import LinkedInURL
+import torch
+import os
+from ..model.lead_scout import LeadScoutModel
+from ..tokenizer.sales_tokenizer import SalesTokenizer
 
 # Setup logger
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -41,7 +45,25 @@ class PipelineEngine:
         
         # Context-Aware Components
         self.semantic_matcher = SemanticMatcher(sender_profile)
+        self.semantic_matcher = SemanticMatcher(sender_profile)
         self.attention_weighter = AttentionSignalWeighter()
+        
+        # Initialize Neural Model
+        self.tokenizer = SalesTokenizer()
+        self.model = None
+        checkpoint_path = "checkpoints/lead_scout_best.pth"
+        if os.path.exists(checkpoint_path):
+            try:
+                # Re-init model with correct dims (must match training script)
+                self.model = LeadScoutModel(
+                    vocab_size=len(self.tokenizer.vocab),
+                    embed_dim=64, num_heads=2, num_layers=2, ff_dim=128
+                )
+                self.model.load_state_dict(torch.load(checkpoint_path))
+                self.model.eval()
+                logger.info("✅ LeadScout Neural Model Loaded")
+            except Exception as e:
+                logger.error(f"❌ Failed to load model: {e}")
         
     def process_lead(self, user_id: str, profile_data: Dict[str, Any], signals: List[SignalEvent]) -> Dict[str, Any]:
         """
@@ -79,8 +101,43 @@ class PipelineEngine:
         # 3. Semantic Fit Scoring
         semantic_fit = self.semantic_matcher.calculate_fit_score(lead) * 100
         
-        # 4. Intent Scoring & Attention
+        # 4. Intent Scoring (Rule-Based + Neural)
         intent_result = self.scorer.calculate_intent_score(signals, lead)
+        
+        # Neural Inference
+        neural_prob = 0.0
+        if self.model:
+            try:
+                # Prepare inputs (similar to data/generate_training_data.py logic)
+                # We map enriched lead data to tokenizer format
+                # Note: enricher output structure is slightly different from tokenizer input expectation
+                # We need to adapt it.
+                lead_data_for_token = {
+                    "months_in_role": 12, # Placeholder, enricher doesn't parse this yet
+                    "funding_amount": 0,  # Placeholder
+                    "own_views_3m": 0,
+                    # We can try to map some real fields if available, otherwise defaults
+                }
+                
+                # Check for funding in signals to populate context
+                for s in signals:
+                    if s.type.value == "funding_round":
+                        lead_data_for_token["funding_amount"] = s.data.get("amount", 0)
+                
+                tokens, token_ids = self.tokenizer.tokenize_lead(lead_data_for_token, signals)
+                input_tensor = torch.tensor([token_ids], dtype=torch.long)
+                
+                with torch.no_grad():
+                    neural_prob = self.model(input_tensor).item() # 0.0 - 1.0
+                    
+                # Blend or Override? 
+                # Let's simple average for now to be safe, or just use Neural if it's confident
+                # For demo "Showcasing Model", let's replace the raw score part with Neural
+                # intent_result.score = neural_prob * 100.0
+                
+            except Exception as e:
+                logger.warning(f"Neural inference failed: {e}")
+                
         attention_weights = self.attention_weighter(self.sender_profile, signals)
         
         # 5. Hybrid Decision Logic
@@ -111,7 +168,9 @@ class PipelineEngine:
             "intent": {
                 "score": intent_result.score,
                 "label": intent_result.label.value,
+                "label": intent_result.label.value,
                 "signals": len(signals),
+                "neural_prob": neural_prob,
                 "attention_weights": attention_weights
             },
             "decision": {

@@ -55,13 +55,13 @@ class ScoringConfig:
     """
     # Base scores for different signal types
     signal_weights: Dict[str, float] = field(default_factory=lambda: {
-        "content_engagement": 5.0,
-        "profile_visit": 8.0,
-        "funding_round": 15.0,
-        "role_change": 10.0,
-        "event_attendance": 12.0,
-        "demo_request": 75.0,  # Explicit high intent
-        "pricing_page_visit": 20.0,
+        "content_engagement": 10.0,    # Like/Share
+        "profile_visit": 15.0,         # Viewed your profile
+        "funding_round": 40.0,         # Signal of budget/growth
+        "role_change": 25.0,           # Signal of new authority
+        "event_attendance": 20.0,      # Signal of interest
+        "demo_request": 70.0,          # Explicit high intent
+        "pricing_page_visit": 35.0,    # High intent behavior
     })
     
     # Modifiers for signal strength (e.g. share > like)

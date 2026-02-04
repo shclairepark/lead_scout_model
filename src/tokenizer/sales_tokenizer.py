@@ -44,18 +44,34 @@ class SalesTokenizer:
             vocab[token] = idx
             idx += 1
         
+        # Signal Type buckets
+        # mapped from SignalType enum values + "SIGNAL_" prefix
+        signal_types = [
+            "signal_funding_round",
+            "signal_job_posting", 
+            "signal_role_change",
+            "signal_news_mention",
+            "signal_content_engagement",
+            "signal_profile_visit",
+            "signal_event_attendance",
+            "signal_demo_request",
+            "signal_pricing_page_visit",
+            "signal_competitor_interaction",
+            "signal_social_connection"
+        ]
+        for token in signal_types:
+            vocab[token.upper()] = idx
+            idx += 1
+            
         return vocab
     
-    def tokenize_lead(self, lead_data):
+    def tokenize_lead(self, lead_data, signals=None):
         """
-        Convert lead dict to list of token strings.
+        Convert lead dict + signals to list of token strings.
         
         Args:
-            lead_data: dict with keys:
-                - months_in_role
-                - funding_amount
-                - own_views_3m, own_views_1m (for momentum)
-                - comp_views_3m, comp_views_1m (for competition)
+            lead_data: dict with lead attributes
+            signals: optional list of SignalEvent objects or dicts
         
         Returns:
             tokens: list of token strings
@@ -121,6 +137,28 @@ class SalesTokenizer:
             tokens.append("COMP_MED")
         else:
             tokens.append("COMP_HIGH")
+            
+        # ===================================
+        # Tokenize Signals
+        # ===================================
+        if signals:
+            for sig in signals:
+                # Handle both SignalEvent objects and dicts (from synthetic data)
+                if hasattr(sig, 'type'):
+                    # It's a SignalEvent enum
+                    t_val = sig.type.value
+                elif isinstance(sig, dict):
+                    t_val = sig.get('type', '')
+                else:
+                    continue
+                    
+                # Construct token: SIGNAL_TYPE
+                # e.g. funding_round -> SIGNAL_FUNDING_ROUND
+                token_name = f"SIGNAL_{t_val}".upper()
+                
+                # Add if in vocab, otherwise ignore
+                if token_name in self.vocab:
+                    tokens.append(token_name)
         
         tokens.append("[END]")
         

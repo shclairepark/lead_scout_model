@@ -27,6 +27,15 @@ class IntentScorer:
         """Initialize the intent scorer."""
         self.config = config or ScoringConfig()
     
+        
+    def _sigmoid(self, x: float) -> float:
+        """Convert logit to probability (0.0 - 1.0)."""
+        import math
+        # Sigmoid function: 1 / (1 + e^-x)
+        # We clamp x to avoid overflow/underflow
+        x = max(-50, min(50, x))
+        return 1.0 / (1.0 + math.exp(-x))
+
     def calculate_intent_score(
         self,
         signals: List[SignalEvent],
@@ -34,7 +43,7 @@ class IntentScorer:
         company_signals: Optional[List[SignalEvent]] = None,
     ) -> IntentScore:
         """
-        Calculate composite intent score.
+        Calculate composite intent score using Sigmoid Probability.
         
         Args:
             signals: List of signals for the specific lead
@@ -44,9 +53,16 @@ class IntentScorer:
         Returns:
             IntentScore object
         """
-        # 1. Base Signal Score (with recency decay)
-        raw_score = 0.0
+        # 1. Base Signal Score (accumulate logits)
+        # Default bias (negative means "start cold")
+        logits = -3.0 
         signal_breakdown = []
+        
+        # Scaling factor: How much 1 "point" of weight affects the logit
+        # If weight=10, we want it to move the needle significantly
+        scale_factor = 0.1 
+        
+        total_raw_weight = 0.0
         
         for signal in signals:
             # Get base weight for signal type
@@ -55,10 +71,8 @@ class IntentScorer:
             # Apply action modifier (e.g., share vs like)
             modifier = 1.0
             if signal.data:
-                # Check for event_type (engagement) or other modifiers
                 action_type = signal.data.get("event_type") or signal.data.get("round_type")
                 if action_type:
-                    # Look for exact match or substring match in modifiers
                     for key, val in self.config.action_modifiers.items():
                         if key in str(action_type).lower():
                             modifier = val
@@ -70,13 +84,16 @@ class IntentScorer:
             # Apply Recency Decay
             decay = self._calculate_decay(signal.timestamp)
             
-            # Calculate final score for this signal
-            signal_score = base_weight * modifier * strength_factor * decay
+            # Calculate contribution for this signal
+            signal_weight = base_weight * modifier * strength_factor * decay
+            total_raw_weight += signal_weight
             
-            raw_score += signal_score
+            # Add to logits
+            logits += (signal_weight * scale_factor)
+            
             signal_breakdown.append({
                 "type": signal.type.value,
-                "score": round(signal_score, 2),
+                "weight": round(signal_weight, 2),
                 "decay": round(decay, 2),
                 "timestamp": signal.timestamp.isoformat(),
             })
@@ -91,17 +108,20 @@ class IntentScorer:
                 company_signals
             )
             if committee_factor > 1.0:
+                # Add boost to logits directly
+                logit_boost = 1.5 if committee_factor >= 1.5 else 0.8
+                logits += logit_boost
+                
                 committee_details = {
                     "detected": True,
                     "multiplier": committee_factor,
+                    "logit_boost": logit_boost,
                     "reason": "Multiple engaged contacts"
                 }
         
-        # 3. Final Score Calculation
-        final_score = raw_score * committee_factor
-        
-        # Cap score at 100
-        final_score = min(100.0, final_score)
+        # 3. Final Probability Calculation
+        probability = self._sigmoid(logits)
+        final_score = probability * 100.0
         
         # 4. Determine Label
         label = self._determine_label(final_score)
@@ -109,12 +129,13 @@ class IntentScorer:
         return IntentScore(
             score=round(final_score, 1),
             label=label,
-            signals_score=round(raw_score, 1),
+            signals_score=round(total_raw_weight, 1),
             recency_factor=self._calculate_decay(signals[0].timestamp) if signals else 0.0,
             committee_factor=committee_factor,
             breakdown={
                 "signals": signal_breakdown,
                 "committee": committee_details,
+                "logits": round(logits, 2)
             }
         )
     
