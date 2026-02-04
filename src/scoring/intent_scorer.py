@@ -7,11 +7,10 @@ Calculates multi-factor intent scores for leads:
 - Buying committee detection
 """
 
-import math
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 from datetime import datetime
 
-from ..signals.signal_event import SignalEvent, SignalType
+from ..signals.signal_event import SignalEvent
 from .data_classes import IntentScore, IntentLabel, ScoringConfig
 from ..enrichment.data_classes import EnrichedLead
 

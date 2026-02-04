@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 import pandas as pd
-import ast
+
 from ..tokenizer.sales_tokenizer import SalesTokenizer
 
 class LeadDataset(Dataset):

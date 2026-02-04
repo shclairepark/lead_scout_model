@@ -8,7 +8,7 @@ Reuses:
 import torch
 import torch.nn as nn
 import numpy as np
-from typing import List, Dict, Any
+from typing import List
 
 from ..model.attention import MultiHeadAttention
 from .data_classes import SenderProfile

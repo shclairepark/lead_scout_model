@@ -5,7 +5,7 @@ Structures for score results and configuration.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from enum import Enum
 
 

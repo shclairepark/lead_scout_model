@@ -7,7 +7,7 @@ Gates automated outreach to only high-quality, high-intent leads:
 - Applies exclusion rules (competitors, customers, etc.)
 """
 
-from typing import List, Optional
+from typing import Optional
 from datetime import datetime
 
 from .data_classes import (
@@ -16,7 +16,7 @@ from .data_classes import (
     EngagementConfig 
 )
 from ..scoring.data_classes import IntentScore
-from ..enrichment.data_classes import EnrichedLead, EnrichedCompany
+from ..enrichment.data_classes import EnrichedLead
 
 
 class HighIntentFilter:

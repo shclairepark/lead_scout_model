@@ -5,7 +5,7 @@ Reuses:
 - src.tokenizer.similarity: cosine_similarity
 """
 
-from typing import List, Dict, Any, Optional
+
 import numpy as np
 
 from ..tokenizer.similarity import cosine_similarity

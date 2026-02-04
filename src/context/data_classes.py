@@ -4,8 +4,8 @@ Data classes for Context-Aware Scoring.
 Defines the sender's profile (context) to match against leads.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from dataclasses import dataclass
+from typing import List, Optional
 import numpy as np
 
 

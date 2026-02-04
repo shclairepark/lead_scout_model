@@ -6,7 +6,7 @@ Generates contextual LinkedIn outreach messages based on detected signals.
 - Role-based value propositions
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
 from .data_classes import OutreachMessage
 from ..signals.signal_event import SignalEvent
